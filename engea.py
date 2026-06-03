@@ -8,14 +8,12 @@ from telegram.ext import (
     MessageHandler, filters, ConversationHandler, ContextTypes
 )
 
-# --- إعدادات البوت (تُسحب من ملف .env) ---
-# إذا كنت تجرب الآن ولا تريد استخدام ملف .env، يمكنك وضع المفاتيح مكان os.getenv()
-BOT_TOKEN = os.getenv('BOT_TOKEN', '8521108982:AAHC_ykEAFjfk72Cz8mp7GGPf_l9zZyKcU0')
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AQ.Ab8RN6JfiKmZf4rq4wHK3BtDEy1ql3nod8h38NxCoYzQoXNpVw')
+# سحب المفاتيح بأمان من إعدادات منصة Render المتغيرة
+BOT_TOKEN = os.getenv('BOT_TOKEN')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# --- دالة الاتصال بجيمناي ---
 def get_ai_response(user_text):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
     data = {"contents": [{"parts": [{"text": f"أنت مهندس تصميم داخلي خبير: {user_text}"}]}]}
@@ -26,7 +24,6 @@ def get_ai_response(user_text):
         result = json.loads(response.read().decode('utf-8'))
         return result['candidates'][0]['content']['parts'][0]['text']
 
-# --- هيكل البوت ---
 CHOOSING, AI_TUTOR, CALCULATOR_TYPE, CALCULATOR_CALC = range(4)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -86,5 +83,5 @@ if __name__ == '__main__':
         fallbacks=[CommandHandler('start', start)]
     )
     app.add_handler(conv)
-    print("🚀 البوت يعمل الآن وجاهز للرفع على GitHub!")
+    print("البوت يعمل الآن على خوادم الاستضافة...")
     app.run_polling()
