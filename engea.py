@@ -1,16 +1,23 @@
+import os
+import sys
+import subprocess
+
+# خدعة برمجية لتثبيت مكتبة تليجرام تلقائياً داخل سيرفر Render دون الحاجة لملف requirements.txt
+try:
+    from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+    from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ConversationHandler, ContextTypes
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "python-telegram-bot"])
+    from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+    from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ConversationHandler, ContextTypes
+
 import logging
 import json
 import urllib.request
-import os
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import (
-    ApplicationBuilder, CommandHandler, CallbackQueryHandler,
-    MessageHandler, filters, ConversationHandler, ContextTypes
-)
 
-# سحب المفاتيح بأمان من إعدادات منصة Render المتغيرة
-BOT_TOKEN = os.getenv('BOT_TOKEN')
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+# تحديث التوكن ومفتاح جيمناي الجديد مباشرة في الكود
+BOT_TOKEN = os.getenv('BOT_TOKEN', '8521108982:AAHC_ykEAFjfk72Cz8mp7GGPf_l9zZyKcU0')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AQ.Ab8RN6K0VkVsNNHF7fJT5IaVxyvxra7OEobWvkFfliGkI9Sn3A')
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -19,11 +26,11 @@ def get_ai_response(user_text):
     data = {"contents": [{"parts": [{"text": f"أنت مهندس تصميم داخلي خبير: {user_text}"}]}]}
     json_data = json.dumps(data).encode('utf-8')
     req = urllib.request.Request(url, data=json_data, headers={'Content-Type': 'application/json'})
-    
     with urllib.request.urlopen(req) as response:
         result = json.loads(response.read().decode('utf-8'))
         return result['candidates'][0]['content']['parts'][0]['text']
 
+# حالات المحادثة للبوت
 CHOOSING, AI_TUTOR, CALCULATOR_TYPE, CALCULATOR_CALC = range(4)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -83,5 +90,5 @@ if __name__ == '__main__':
         fallbacks=[CommandHandler('start', start)]
     )
     app.add_handler(conv)
-    print("البوت يعمل الآن على خوادم الاستضافة...")
+    print("🚀 البوت المحدث يعمل الآن وجاهز بالكامل للاستضافة...")
     app.run_polling()
