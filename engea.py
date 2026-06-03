@@ -1,19 +1,21 @@
 import logging
 import json
 import urllib.request
+import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, CallbackQueryHandler,
     MessageHandler, filters, ConversationHandler, ContextTypes
 )
 
-# --- إعدادات البوت والذكاء الاصطناعي ---
-BOT_TOKEN = '8521108982:AAHC_ykEAFjfk72Cz8mp7GGPf_l9zZyKcU0'
-GEMINI_API_KEY = 'AQ.Ab8RN6JfiKmZf4rq4wHK3BtDEy1ql3nod8h38NxCoYzQoXNpVw'
+# --- إعدادات البوت (تُسحب من ملف .env) ---
+# إذا كنت تجرب الآن ولا تريد استخدام ملف .env، يمكنك وضع المفاتيح مكان os.getenv()
+BOT_TOKEN = os.getenv('BOT_TOKEN', '8521108982:AAHC_ykEAFjfk72Cz8mp7GGPf_l9zZyKcU0')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AQ.Ab8RN6JfiKmZf4rq4wHK3BtDEy1ql3nod8h38NxCoYzQoXNpVw')
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# --- دالة الاتصال بجيمناي بدون مكتبات خارجية ---
+# --- دالة الاتصال بجيمناي ---
 def get_ai_response(user_text):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
     data = {"contents": [{"parts": [{"text": f"أنت مهندس تصميم داخلي خبير: {user_text}"}]}]}
@@ -33,8 +35,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         [InlineKeyboardButton("📐 الحاسبة الهندسية", callback_data='calc_menu')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    if update.message:
-        await update.message.reply_text('أهلاً بك يا مهندس! اختر الخدمة:', reply_markup=reply_markup)
+    await update.message.reply_text('أهلاً بك يا مهندس! اختر الخدمة:', reply_markup=reply_markup)
     return CHOOSING
 
 async def handle_ai_request(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -63,7 +64,7 @@ async def perform_calc(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     try:
         l, w = map(float, update.message.text.split())
         area = l * w
-        c_type = context.user_data['calc_type']
+        c_type = context.user_data.get('calc_type')
         if c_type == 'tiles': res = f"🧱 البلاط المطلوب (مع هدر 10%): {area * 1.1:.2f} م²"
         elif c_type == 'paint': res = f"🎨 الطلاء المطلوب (للوجهين): {area * 0.2:.2f} لتر"
         else: res = f"💡 الإضاءة المطلوبة: {area * 200:.0f} لومن"
@@ -85,5 +86,5 @@ if __name__ == '__main__':
         fallbacks=[CommandHandler('start', start)]
     )
     app.add_handler(conv)
-    print("البوت يعمل الآن...")
+    print("🚀 البوت يعمل الآن وجاهز للرفع على GitHub!")
     app.run_polling()
