@@ -15,15 +15,16 @@ import logging
 import json
 import urllib.request
 
-# تحديث التوكن ومفتاح جيمناي الجديد مباشرة في الكود
+# تم ربط التوكن الجديد ومفتاح جيمناي الجديد الخاص بك هنا مباشرة
 BOT_TOKEN = os.getenv('BOT_TOKEN', '8521108982:AAHC_ykEAFjfk72Cz8mp7GGPf_l9zZyKcU0')
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AQ.Ab8RN6K0VkVsNNHF7fJT5IaVxyvxra7OEobWvkFfliGkI9Sn3A')
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
+# دالة الربط المباشر بين البوت وبيني (Gemini AI)
 def get_ai_response(user_text):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
-    data = {"contents": [{"parts": [{"text": f"أنت مهندس تصميم داخلي خبير: {user_text}"}]}]}
+    data = {"contents": [{"parts": [{"text": f"أنت مهندس تصميم داخلي خبير، أجب بوضوح واحترافية: {user_text}"}]}]}
     json_data = json.dumps(data).encode('utf-8')
     req = urllib.request.Request(url, data=json_data, headers={'Content-Type': 'application/json'})
     with urllib.request.urlopen(req) as response:
@@ -90,5 +91,5 @@ if __name__ == '__main__':
         fallbacks=[CommandHandler('start', start)]
     )
     app.add_handler(conv)
-    print("🚀 البوت المحدث يعمل الآن وجاهز بالكامل للاستضافة...")
+    print("🚀 البوت المحدث يعمل الآن وجاهز للاستضافة والاتصال بـ Gemini...")
     app.run_polling()
